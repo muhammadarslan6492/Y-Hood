@@ -1,0 +1,121 @@
+{
+  "definitions": {
+    "Register": {
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "user": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "phone": {
+              "type": "string"
+            },
+            "otpverified": {
+              "type": "boolean"
+            },
+            "dob": {
+              "type": "string"
+            },
+            "gender": {
+              "type": "string"
+            },
+            "otp_verified": {
+              "type": "boolean"
+            },
+            "email_verified": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "Login": {
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        },
+        "user": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "phone": {
+              "type": "string"
+            },
+            "otpverified": {
+              "type": "boolean"
+            },
+            "dob": {
+              "type": "string"
+            },
+            "gender": {
+              "type": "string"
+            },
+            "otp_verified": {
+              "type": "boolean"
+            },
+            "email_verified": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "Logout": {
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "Send_OTP": {
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "Verify_OTP": {
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

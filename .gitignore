@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.DS_Store
+coverage
+.vscode
+logs
+log
+package-lock.json
+report.json
+test-report.xml
+.history

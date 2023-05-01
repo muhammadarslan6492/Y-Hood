@@ -1,0 +1,86 @@
+# This is a sample build configuration for JavaScript.
+# Check our guides at https://confluence.atlassian.com/x/14UWN for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: node:10.19.0 # Choose an image matching your project needs
+
+clone:
+      depth: full              # SonarCloud scanner needs the full history to assign issues properly
+
+definitions:
+      services:
+        docker:
+          memory: 2048
+      caches:
+            sonar: ~/.sonar/cache # Caching SonarCloud artifacts will speed up your build
+      steps:
+      - step: &build-test-sonarcloud
+              name: Build, test and analyze on SonarCloud
+              caches:
+              - node           # See https://confluence.atlassian.com/bitbucket/caching-dependencies-895552876.html
+              - sonar
+              script:
+              - printf "//${NPM_REGISTRY}/:_authToken='${NPM_TOKEN}'" >> .npmrc
+              - npm install           # Build your project and run
+              - npm run lintfile
+              - ls -ll
+              - npm run coverage
+              - pipe: sonarsource/sonarcloud-scan:1.0.1
+                variables:
+                  EXTRA_ARGS: '-Dsonar.organization=venturedive -Dsonar.projectKey=${SONAR_PROJECT_KEY}
+ -Dsonar.sources=server -Dsonar.host.url=https://sonarcloud.io -Dsonar.eslint.reportPaths=report.json -Dsonar.tests=server -Dsonar.test.inclusions=**/*.test.js -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info -Dsonar.testExecutionReportPaths=test-report.xml'
+
+      - step: &check-quality-gate-sonarcloud
+              name: Check the Quality Gate on SonarCloud
+              script:
+              - pipe: sonarsource/sonarcloud-quality-gate:0.1.3
+      - step: &dev-deploy
+              name: Deploy to Dev
+              caches:
+                - node
+              script:
+                - apt-get update
+                - ssh-keyscan $SSH_HOST_DEV >> ~/.ssh/known_hosts
+                - chmod 644 ~/.ssh/known_hosts
+                - whoami
+                - ssh $EC2_USER@$SSH_HOST_DEV "cd /home/ubuntu/yalla && git checkout dev && git pull origin dev && ((! grep -n \"//${NPM_REGISTRY}/:_authToken=\" .npmrc && printf \"\n//${NPM_REGISTRY}/:_authToken='${NPM_TOKEN}'\" >> .npmrc) || true) && npm install && git reset --hard && npm run setup && npm run compile && pm2 restart ecosystem.config.js --env development"
+      - step: &test-deploy
+              name: Deploy to TEST
+              caches:
+                - node
+              script:
+                - apt-get update
+                - ssh-keyscan $SSH_HOST_TEST >> ~/.ssh/known_hosts
+                - chmod 644 ~/.ssh/known_hosts
+                - whoami
+                - ssh $EC2_USER@$SSH_HOST_TEST "cd /home/ubuntu/yalla && git checkout test && git pull origin test && ((! grep -n \"//${NPM_REGISTRY}/:_authToken=\" .npmrc && printf \"\n//${NPM_REGISTRY}/:_authToken='${NPM_TOKEN}'\" >> .npmrc) || true) && npm install && git reset --hard && npm install && npm run setup && npm run compile && pm2 restart ecosystem.config.js --env test"
+      - step: &prod-deploy
+              name: Deploy to Prod
+              caches:
+              - node
+              script:
+              - apt-get update
+              - ssh-keyscan $SSH_HOST_PROD >> ~/.ssh/known_hosts
+              - chmod 644 ~/.ssh/known_hosts
+              - whoami
+              - ssh $EC2_USER@$SSH_HOST_PROD "cd /home/ubuntu/yalla && git checkout master && git pull origin master && ((! grep -n \"//${NPM_REGISTRY}/:_authToken=\" .npmrc && printf \"\n//${NPM_REGISTRY}/:_authToken='${NPM_TOKEN}'\" >> .npmrc) || true) && npm install && git reset --hard && npm install && npm run setup && npm run compile && pm2 restart ecosystem.config.js --env production"
+
+pipelines:                 # More info here: https://confluence.atlassian.com/bitbucket/configure-bitbucket-pipelines-yml-792298910.html
+  branches:
+    master:
+      - step: *build-test-sonarcloud
+      - step: *check-quality-gate-sonarcloud
+      # - step: *prod-deploy
+    test:
+      - step: *build-test-sonarcloud
+      - step: *check-quality-gate-sonarcloud
+      # - step: *test-deploy
+    dev:
+      - step: *build-test-sonarcloud
+      - step: *check-quality-gate-sonarcloud
+      # - step: *dev-deploy
+  pull-requests:
+    '**':
+      - step: *build-test-sonarcloud
+      - step: *check-quality-gate-sonarcloud

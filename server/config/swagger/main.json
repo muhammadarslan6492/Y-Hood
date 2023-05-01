@@ -1,0 +1,153 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/users/register": {
+      "post": {
+        "description": "Register user",
+        "parameters": [
+          {
+            "name": "email",
+            "paramType": "string",
+            "required": true
+          },
+          {
+            "name": "password",
+            "paramType": "string",
+            "required": true
+          },
+          {
+            "name": "name",
+            "paramType": "string",
+            "required": true
+          },
+          {
+            "name": "dob",
+            "paramType": "string",
+            "required": false
+          },
+          {
+            "name": "gender",
+            "paramType": "string",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "$ref": "server/config/swagger/definitions.json#/definitions/Register"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/login": {
+      "post": {
+        "description": "User Login",
+        "parameters": [
+          {
+            "name": "email",
+            "paramType": "string",
+            "required": true
+          },
+          {
+            "name": "password",
+            "paramType": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "$ref": "server/config/swagger/definitions.json#/definitions/Login"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/logout": {
+      "get": {
+        "description": "User logout",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "$ref": "server/config/swagger/definitions.json#/definitions/Logout"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/send-otp": {
+      "post": {
+        "description": "Send OTP",
+        "parameters": [
+          {
+            "name": "phone",
+            "paramType": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "$ref": "server/config/swagger/definitions.json#/definitions/Send_OTP"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/verify-otp": {
+      "post": {
+        "description": "Verify OTP",
+        "parameters": [
+          {
+            "name": "phone",
+            "paramType": "string",
+            "required": true
+          },
+          {
+            "name": "code",
+            "paramType": "number",
+            "required": true
+          },
+          {
+            "name": "userId",
+            "paramType": "number",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "$ref": "server/config/swagger/definitions.json#/definitions/Verify_OTP"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
